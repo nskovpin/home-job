@@ -19,7 +19,7 @@ public class RGroupByCtn extends Reducer<Text, Text, NullWritable, Text> {
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        clusterProperties =  new ClusterProperties(context.getConfiguration());
+        clusterProperties = new ClusterProperties(context.getConfiguration());
     }
 
     @Override
@@ -36,9 +36,9 @@ public class RGroupByCtn extends Reducer<Text, Text, NullWritable, Text> {
         TopHolder weekendNightHolder = new TopHolder();
 
         for (Text value : values) {
-            String[] valueRow = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER);
+            String[] valueRow = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER, -1);
 
-            if(imsi.isEmpty()){
+            if (imsi.isEmpty()) {
                 imsi = valueRow[MAddGrid.OutputValue.IMSI.ordinal()];
             }
 
@@ -100,8 +100,145 @@ public class RGroupByCtn extends Reducer<Text, Text, NullWritable, Text> {
         );
 
         context.write(KEY, VALUE);
-
+        context.getCounter(GeoLayer.Counter.GOOD_ROW).increment(1);
     }
 
+    private enum OutputValue {
+        CTN,
+        IMSI,
+        MONTH,
+        HOME_TOP_1_LAC,
+        HOME_TOP_1_CELL_ID,
+        HOME_TOP_1_LATITUDE,
+        HOME_TOP_1_LONGITUDE,
+        HOME_TOP_1_ADDRESSSTRING_NORM,
+        HOME_TOP_1_PERIOD_COUNT,
+        HOME_TOP_1_CELL_LIST,
+        JOB_TOP_1_LAC,
+        JOB_TOP_1_CELL_ID,
+        JOB_TOP_1_LATITUDE,
+        JOB_TOP_1_LONGITUDE,
+        JOB_TOP_1_ADDRESSSTRING_NORM,
+        JOB_TOP_1_CELL_LIST,
+        EVENING_LAC,
+        EVENING_CELL_ID,
+        EVENING_LATITUDE,
+        EVENING_LONGITUDE,
+        EVENING_ADDRESSSTRING_NORM,
+        EVENING_CELL_LIST,
+        MORNING_LAC,
+        MORNING_CELL_ID,
+        MORNING_LATITUDE,
+        MORNING_LONGITUDE,
+        MORNING_ADDRESSSTRING_NORM,
+        MORNING_CELL_LIST,
+        WEEKEND_LAC,
+        WEEKEND_CELL_ID,
+        WEEKEND_LATITUDE,
+        WEEKEND_LONGITUDE,
+        WEEKEND_ADDRESSSTRING_NORM,
+        WEEKEND_CELL_LIST,
+        HOME_TOP_2_LAC,
+        HOME_TOP_2_CELL_ID,
+        HOME_TOP_2_LATITUDE,
+        HOME_TOP_2_LONGITUDE,
+        HOME_TOP_2_ADDRESSSTRING_NORM,
+        HOME_TOP_2_CELL_LIST,
+        JOB_TOP_2_LAC,
+        JOB_TOP_2_CELL_ID,
+        JOB_TOP_2_LATITUDE,
+        JOB_TOP_2_LONGITUDE,
+        JOB_TOP_2_ADDRESSSTRING_NORM,
+        JOB_TOP_2_CELL_LIST,
+        WEEKEND_DAY_TOP_1_LAC,
+        WEEKEND_DAY_TOP_1_CELL_ID,
+        WEEKEND_DAY_TOP_1_LATITUDE,
+        WEEKEND_DAY_TOP_1_LONGITUDE,
+        WEEKEND_DAY_TOP_1_ADDRESSSTRING_NORM,
+        WEEKEND_DAY_TOP_1_CELL_LIST,
+        WEEKEND_DAY_TOP_2_LAC,
+        WEEKEND_DAY_TOP_2_CELL_ID,
+        WEEKEND_DAY_TOP_2_LATITUDE,
+        WEEKEND_DAY_TOP_2_LONGITUDE,
+        WEEKEND_DAY_TOP_2_ADDRESSSTRING_NORM,
+        WEEKEND_DAY_TOP_2_CELL_LIST,
+        WEEKEND_NIGHT_TOP_1_LAC,
+        WEEKEND_NIGHT_TOP_1_CELL_ID,
+        WEEKEND_NIGHT_TOP_1_LATITUDE,
+        WEEKEND_NIGHT_TOP_1_LONGITUDE,
+        WEEKEND_NIGHT_TOP_1_ADDRESSSTRING_NORM,
+        WEEKEND_NIGHT_TOP_1_CELL_LIST,
+        WEEKEND_NIGHT_TOP_2_LAC,
+        WEEKEND_NIGHT_TOP_2_CELL_ID,
+        WEEKEND_NIGHT_TOP_2_LATITUDE,
+        WEEKEND_NIGHT_TOP_2_LONGITUDE,
+        WEEKEND_NIGHT_TOP_2_ADDRESSSTRING_NORM,
+        WEEKEND_NIGHT_TOP_2_CELL_LIST,
+        HOME_TOP_1_HOURS,
+        HOME_TOP_1_PC,
+        HOME_TOP_1_BRANCH_ID,
+        HOME_TOP_1_CITY_ID,
+        HOME_TOP_1_GRID_LIST,
+        JOB_TOP_1_PERIOD_COUNT,
+        JOB_TOP_1_HOURS,
+        JOB_TOP_1_PC,
+        JOB_TOP_1_BRANCH_ID,
+        JOB_TOP_1_CITY_ID,
+        JOB_TOP_1_GRID_LIST,
+        EVENING_PERIOD_COUNT,
+        EVENING_HOURS,
+        EVENING_PC,
+        EVENING_BRANCH_ID,
+        EVENING_CITY_ID,
+        EVENING_GRID_LIST,
+        MORNING_PERIOD_COUNT,
+        MORNING_HOURS,
+        MORNING_PC,
+        MORNING_BRANCH_ID,
+        MORNING_CITY_ID,
+        MORNING_GRID_LIST,
+        WEEKEND_PERIOD_COUNT,
+        WEEKEND_HOURS,
+        WEEKEND_PC,
+        WEEKEND_BRANCH_ID,
+        WEEKEND_CITY_ID,
+        WEEKEND_GRID_LIST,
+        HOME_TOP_2_PERIOD_COUNT,
+        HOME_TOP_2_HOURS,
+        HOME_TOP_2_PC,
+        HOME_TOP_2_BRANCH_ID,
+        HOME_TOP_2_CITY_ID,
+        HOME_TOP_2_GRID_LIST,
+        JOB_TOP_2_PERIOD_COUNT,
+        JOB_TOP_2_HOURS,
+        JOB_TOP_2_PC,
+        JOB_TOP_2_BRANCH_ID,
+        JOB_TOP_2_CITY_ID,
+        JOB_TOP_2_GRID_LIST,
+        WEEKEND_DAY_TOP_1_PERIOD_COUNT,
+        WEEKEND_DAY_TOP_1_HOURS,
+        WEEKEND_DAY_TOP_1_PC,
+        WEEKEND_DAY_TOP_1_BRANCH_ID,
+        WEEKEND_DAY_TOP_1_CITY_ID,
+        WEEKEND_DAY_TOP_1_GRID_LIST,
+        WEEKEND_DAY_TOP_2_PERIOD_COUNT,
+        WEEKEND_DAY_TOP_2_HOURS,
+        WEEKEND_DAY_TOP_2_PC,
+        WEEKEND_DAY_TOP_2_BRANCH_ID,
+        WEEKEND_DAY_TOP_2_CITY_ID,
+        WEEKEND_DAY_TOP_2_GRID_LIST,
+        WEEKEND_NIGHT_TOP_1_PERIOD_COUNT,
+        WEEKEND_NIGHT_TOP_1_HOURS,
+        WEEKEND_NIGHT_TOP_1_PC,
+        WEEKEND_NIGHT_TOP_1_BRANCH_ID,
+        WEEKEND_NIGHT_TOP_1_CITY_ID,
+        WEEKEND_NIGHT_TOP_1_GRID_LIST,
+        WEEKEND_NIGHT_TOP_2_PERIOD_COUNT,
+        WEEKEND_NIGHT_TOP_2_HOURS,
+        WEEKEND_NIGHT_TOP_2_PC,
+        WEEKEND_NIGHT_TOP_2_BRANCH_ID,
+        WEEKEND_NIGHT_TOP_2_CITY_ID,
+        WEEKEND_NIGHT_TOP_2_GRID_LIST;
+    }
 
 }

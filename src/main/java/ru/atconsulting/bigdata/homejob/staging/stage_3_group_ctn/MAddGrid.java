@@ -5,6 +5,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
 import ru.atconsulting.bigdata.homejob.staging.stage_2_calculate_intervals.RSumIntervals;
+import ru.atconsulting.bigdata.homejob.system.ClusterProperties;
 import ru.atconsulting.bigdata.homejob.system.pojo.DimGridAll;
 import ru.atconsulting.bigdata.homejob.system.pojo.GeoLayer;
 import ru.atconsulting.bigdata.homejob.system.pojo.Tower;
@@ -25,10 +26,14 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
+        ClusterProperties clusterProperties = new ClusterProperties(context.getConfiguration());
+        Path dimGridAllPath = new Path(clusterProperties.getHdfsDimGridAllPath());
         URI[] files = context.getCacheFiles();
         for (URI file : files) {
             Path path = new Path(file);
-            this.dimGridAllMap = DimGridAll.loadDimGridAllMap(path.toString());
+            if(dimGridAllPath.getName().equals(path.getName())){
+                this.dimGridAllMap = DimGridAll.loadDimGridAllMap(path.toString());
+            }
         }
         if (dimGridAllMap.size() == 0) {
             throw new RuntimeException(">>>DimTime size is 0");
@@ -38,6 +43,10 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
     @Override
     protected void map(WritableComparable key, Text value, Context context) throws IOException, InterruptedException {
         String[] valueRow = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER, -1);
+        if (valueRow.length != RSumIntervals.OutputValue.values().length) {
+            context.getCounter(GeoLayer.Counter.WRONG_COLUMN_LENGTH);
+            return;
+        }
 
         String ctn = valueRow[RSumIntervals.OutputValue.CTN.ordinal()];
         Tower tower = Tower.builder()
@@ -46,15 +55,23 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
                 .build();
         DimGridAll dimGridAll = dimGridAllMap.get(tower);
 
+        String latitude = dimGridAll == null ? "" : dimGridAll.getLatitude();
+        String longitude = dimGridAll == null ? "" : dimGridAll.getLongitude();
+        String fullAddress = dimGridAll == null ?  "" : dimGridAll.getFullAddress();
+        String localityName = dimGridAll == null ? "" : dimGridAll.getLocalityName();
+        String branchId = dimGridAll == null ?  "" : dimGridAll.getBranchId();
+        String cityId = dimGridAll == null ? "" : dimGridAll.getCityId();
+        String gridAll = dimGridAll == null ? "" : dimGridAll.getGridList();
+
         KEY.set(ctn);
         VALUE.set(writeValue(valueRow, GeoLayer.Constant.FIELD_DELIMITER, Collections.singletonList(RSumIntervals.OutputValue.CTN.ordinal())) +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getLatitude() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getLongitude() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getFullAddress() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getLocalityName() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getBranchId() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getCityId() +
-                GeoLayer.Constant.FIELD_DELIMITER + dimGridAll.getGridList()
+                GeoLayer.Constant.FIELD_DELIMITER + latitude +
+                GeoLayer.Constant.FIELD_DELIMITER + longitude +
+                GeoLayer.Constant.FIELD_DELIMITER + fullAddress +
+                GeoLayer.Constant.FIELD_DELIMITER + localityName +
+                GeoLayer.Constant.FIELD_DELIMITER + branchId +
+                GeoLayer.Constant.FIELD_DELIMITER + cityId +
+                GeoLayer.Constant.FIELD_DELIMITER + gridAll
         );
         context.write(KEY, VALUE);
     }

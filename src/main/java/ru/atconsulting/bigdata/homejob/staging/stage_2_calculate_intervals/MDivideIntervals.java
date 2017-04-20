@@ -30,10 +30,13 @@ public class MDivideIntervals extends Mapper<WritableComparable, Text, Text, Tex
     @Override
     protected void setup(Mapper.Context context) throws IOException, InterruptedException {
         ClusterProperties clusterProperties = new ClusterProperties(context.getConfiguration());
+        Path dimTimePath = new Path(clusterProperties.getHdfsDimTimePath());
         URI[] files = context.getCacheFiles();
         for (URI file : files) {
             Path path = new Path(file);
-            this.dimTimeMap = DimTime.loadDimTimeMap(path.toString(), clusterProperties.getTimeKey());
+            if(path.getName().equals(dimTimePath.getName())){
+                this.dimTimeMap = DimTime.loadDimTimeMap(path.toString(), clusterProperties.getTimeKey());
+            }
         }
         if (dimTimeMap.size() == 0) {
             throw new RuntimeException(">>>DimTime size is 0");
@@ -44,16 +47,16 @@ public class MDivideIntervals extends Mapper<WritableComparable, Text, Text, Tex
     @Override
     protected void map(WritableComparable key, Text value, Context context) throws IOException, InterruptedException {
         String[] row = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER, -1);
-        if (row.length != RFirstImsi.OutputValue.LENGTH) {
+        if (row.length != RFirstImsi.OutputValue.values().length) {
             context.getCounter(GeoLayer.Counter.WRONG_COLUMN_LENGTH);
             return;
         }
 
-        String ctn = row[RFirstImsi.OutputValue.INDEX_CTN];
-        String imsi = row[RFirstImsi.OutputValue.INDEX_IMSI];
-        String cellList = row[RFirstImsi.OutputValue.INDEX_CELL_LIST];
-        DateTime startIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.INDEX_START_INTERVAL], GeoLayer.Constant.INTERVAL_FORMATTER);
-        DateTime endIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.INDEX_END_INTERVAL], GeoLayer.Constant.INTERVAL_FORMATTER);
+        String ctn = row[RFirstImsi.OutputValue.CTN.ordinal()];
+        String imsi = row[RFirstImsi.OutputValue.IMSI.ordinal()];
+        String cellList = row[RFirstImsi.OutputValue.CELL_LIST.ordinal()].replace("[","").replace("]","");
+        DateTime startIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.START_INTERVAL.ordinal()], GeoLayer.Constant.INTERVAL_FORMATTER);
+        DateTime endIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.END_INTERVAL.ordinal()], GeoLayer.Constant.INTERVAL_FORMATTER);
 
         List<DateIntervalMaker.GeoInterval> intervals = DateIntervalMaker.tryToMakeDayIntervals(startIntervalDate, endIntervalDate);
         TimeSummary timeSummary = DateTerminator.getTimeSummary(intervals, dimTimeMap);
@@ -83,6 +86,7 @@ public class MDivideIntervals extends Mapper<WritableComparable, Text, Text, Tex
                     cellList);
 
             context.write(KEY, VALUE);
+            context.getCounter(GeoLayer.Counter.GOOD_ROW).increment(1);
         }
 
     }
@@ -96,21 +100,21 @@ public class MDivideIntervals extends Mapper<WritableComparable, Text, Text, Tex
     }
 
     public enum OutputValue {
-        INDEX_HOME,
-        INDEX_JOB,
-        INDEX_EVENING,
-        INDEX_MORNING,
-        INDEX_WEEKEND,
-        INDEX_WEEKEND_DAY,
-        INDEX_WEEKEND_NIGHT,
-        INDEX_HOME_COUNT,
-        INDEX_JOB_COUNT,
-        INDEX_EVENING_COUNT,
-        INDEX_MORNING_COUNT,
-        INDEX_WEEKEND_COUNT,
-        INDEX_WEEKEND_DAY_COUNT,
-        INDEX_WEEKEND_NIGHT_COUNT,
-        INDEX_CELL_LIST;
+        HOME,
+        JOB,
+        EVENING,
+        MORNING,
+        WEEKEND,
+        WEEKEND_DAY,
+        WEEKEND_NIGHT,
+        HOME_COUNT,
+        JOB_COUNT,
+        EVENING_COUNT,
+        MORNING_COUNT,
+        WEEKEND_COUNT,
+        WEEKEND_DAY_COUNT,
+        WEEKEND_NIGHT_COUNT,
+        CELL_LIST;
     }
 
 

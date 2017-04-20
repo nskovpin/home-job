@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-class Pair<K, V> {
-    K key;
-    V value;
+public class Pair<K, V> {
+    private K key;
+    private V value;
 }

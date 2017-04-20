@@ -1,4 +1,4 @@
-package ru.atconsulting.bigdata.homejob.staging.stage_1_unique_imsi;
+package ru.atconsulting.bigdata.homejob.staging.stage_2_calculate_intervals;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -10,59 +10,48 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.log4j.Logger;
-import org.joda.time.Months;
-import ru.at_consulting.bigdata.secondary_sort.ComparedKey;
-import ru.at_consulting.bigdata.secondary_sort.CompositeKeyComparator;
-import ru.at_consulting.bigdata.secondary_sort.GroupingKeyComparator;
-import ru.at_consulting.bigdata.secondary_sort.KeyPartitioner;
 import ru.at_consulting.bigdata.utils.JobConfigurer;
 import ru.at_consulting.bigdata.utils.ResourceLoader;
+import ru.atconsulting.bigdata.homejob.staging.stage_1_unique_imsi.DDriver1;
 import ru.atconsulting.bigdata.homejob.system.ClusterProperties;
 
 /**
  * Created by NSkovpin on 17.04.2017.
  */
-public class DDriver1 extends Configured implements Tool {
-    private static final Logger LOGGER = Logger.getLogger(DDriver1.class);
+public class DDriver2 extends Configured implements Tool {
+    private static final Logger LOGGER = Logger.getLogger(DDriver2.class);
 
     @Override
     public int run(String[] strings) throws Exception {
-        System.out.println("Driver 1: stg_unique_imsi");
-        LOGGER.info("Driver 1: stg_unique_imsi");
+        System.out.println("Driver 2: stg_intervals");
+        LOGGER.info("Driver 2: stg_intervals");
         Configuration conf = getConf();
         ClusterProperties clusterProperties = new ClusterProperties(conf);
         LOGGER.info(clusterProperties.toString());
         System.out.println(clusterProperties.toString());
 
-        Job job = Job.getInstance(conf, clusterProperties.getProjectName() + "_stg_1");
-        job.setJarByClass(DDriver1.class);
+        Job job = Job.getInstance(conf, clusterProperties.getProjectName() + "_stg_2");
+        job.setJarByClass(DDriver2.class);
 
         JobConfigurer.enableCompressionFromMapper(job);
         JobConfigurer.enableTextAndCompression(job);
 
-        job.setMapOutputKeyClass(ComparedKey.class);
+        job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
 
-        job.setPartitionerClass(KeyPartitioner.class);
-        job.setGroupingComparatorClass(GroupingKeyComparator.class);
-        job.setSortComparatorClass(CompositeKeyComparator.class);
-
-        job.setReducerClass(RFirstImsi.class);
+        job.setReducerClass(RSumIntervals.class);
         job.setOutputKeyClass(NullWritable.class);
         job.setOutputValueClass(Text.class);
 
         FileSystem hdfs = FileSystem.get(job.getConfiguration());
 
-        ResourceLoader resourceLoader = new ResourceLoader(job);
-        int loaded = resourceLoader.loadPartitionedSource(clusterProperties.getHdfsGeoLayerPath(),
-                clusterProperties.getTimeKey(),
-                clusterProperties.getTimeKey(),
-                Months.ONE,
-                "YYYYMM",
-                MLoadGeo.class);
-        LOGGER.info("Loaded count:\t"+ loaded);
+        job.addCacheFile(new Path(clusterProperties.getHdfsDimTimePath()).toUri());
+        LOGGER.info("Loaded file to cache:"+clusterProperties.getHdfsDimTimePath());
 
-        Path outputPath = new Path(clusterProperties.getHdfsStgUniqueImsi());
+        ResourceLoader resourceLoader = new ResourceLoader(job);
+        resourceLoader.loadSimpleSource(clusterProperties.getHdfsStgUniqueImsi(), MDivideIntervals.class);
+
+        Path outputPath = new Path(clusterProperties.getHdfsStgIntervals());
 
         if (hdfs.exists(outputPath)) {
             hdfs.delete(outputPath, true);

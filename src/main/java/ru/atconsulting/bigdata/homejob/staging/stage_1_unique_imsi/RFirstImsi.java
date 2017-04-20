@@ -22,26 +22,26 @@ public class RFirstImsi extends Reducer<ComparedKey, Text, NullWritable, Text> {
         for (Text value : values) {
             String[] row = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER);
             if (firstImsi == null) {
-                firstImsi = row[MLoadGeo.OutputValue.INDEX_IMSI];
+                firstImsi = row[MLoadGeo.OutputValue.IMSI.ordinal()];
             }
             VALUE.set(ctn + GeoLayer.Constant.FIELD_DELIMITER +
                     firstImsi + GeoLayer.Constant.FIELD_DELIMITER +
-                    row[MLoadGeo.OutputValue.INDEX_START_INTERVAL] + GeoLayer.Constant.FIELD_DELIMITER +
-                    row[MLoadGeo.OutputValue.INDEX_END_INTERVAL] + GeoLayer.Constant.FIELD_DELIMITER +
-                    row[MLoadGeo.OutputValue.INDEX_CELL_LIST]
+                    row[MLoadGeo.OutputValue.START_INTERVAL.ordinal()] + GeoLayer.Constant.FIELD_DELIMITER +
+                    row[MLoadGeo.OutputValue.END_INTERVAL.ordinal()] + GeoLayer.Constant.FIELD_DELIMITER +
+                    row[MLoadGeo.OutputValue.CELL_LIST.ordinal()]
             );
             context.write(KEY, VALUE);
+            System.out.println(VALUE.toString());
         }
 
     }
 
-    public static class OutputValue {
-        public static final int LENGTH = 5;
-        public static final int INDEX_CTN = 0;
-        public static final int INDEX_IMSI = 1;
-        public static final int INDEX_START_INTERVAL = 2;
-        public static final int INDEX_END_INTERVAL = 3;
-        public static final int INDEX_CELL_LIST = 4;
+    public enum OutputValue {
+        CTN,
+        IMSI,
+        START_INTERVAL,
+        END_INTERVAL,
+        CELL_LIST;
     }
 
 }

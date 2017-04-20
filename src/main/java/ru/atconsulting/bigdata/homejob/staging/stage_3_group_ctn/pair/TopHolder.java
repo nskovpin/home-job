@@ -31,18 +31,20 @@ public class TopHolder {
             top1.setValue(createTopString(valueRow, time, count));
             return;
         }
+        Long secondKey = key;
         if (top1.getKey().compareTo(key) < 0) {
+            secondKey = top1.getKey();
             top1.setKey(key);
             top1.setValue(createTopString(valueRow, time, count));
         }
         if (!onlyTop1) {
             if (top2 == null) {
                 top2 = new Pair<>();
-                top2.setKey(key);
+                top2.setKey(secondKey);
                 top2.setValue(createTopString(valueRow, time, count));
             } else {
                 if (top2.getKey().compareTo(key) < 0) {
-                    top2.setKey(key);
+                    top2.setKey(secondKey);
                     top2.setValue(createTopString(valueRow, time, count));
                 }
             }
@@ -52,7 +54,7 @@ public class TopHolder {
     public String getTop1Value(int part) {
         switch (part){
             case 1 : return top1.getValue().getKey();
-            case 2 : return top2.getValue().getValue();
+            case 2 : return top1.getValue().getValue();
         }
         throw new RuntimeException("Don't know this part");
     }

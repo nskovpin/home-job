@@ -19,4 +19,5 @@ public class DimTimeTest {
         Map<String, Integer> map = DimTime.loadDimTimeMap(TestParams.getPath(TestParams.PATH_ENUM.DIM_TIME_2).toString(), DateTime.now());
         Assert.assertTrue(map.size() == 9);
     }
+
 }

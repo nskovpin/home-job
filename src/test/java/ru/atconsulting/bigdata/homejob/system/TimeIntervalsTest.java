@@ -1,4 +1,4 @@
-package ru.atconsulting.bigdata.homejob.staging.stage_2;
+package ru.atconsulting.bigdata.homejob.system;
 
 import junit.framework.Assert;
 import org.joda.time.DateTime;

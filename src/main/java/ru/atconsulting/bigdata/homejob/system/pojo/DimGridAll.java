@@ -1,8 +1,7 @@
 package ru.atconsulting.bigdata.homejob.system.pojo;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import ru.atconsulting.bigdata.homejob.system.util.Utils;
 
 import java.io.BufferedReader;
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 @Getter
 public class DimGridAll {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DimTime.class);
+    private static final Logger LOGGER = Logger.getLogger(DimTime.class);
     private String lac;
     private String cell;
     private String latitude;

@@ -33,9 +33,8 @@ public class MLoadGeo extends Mapper<WritableComparable, Text, ComparedKey, Text
             return;
         }
 
-
         GeoLayer geoLayer = new GeoLayer(splitValue);
-        if (!geoLayer.isProper()) {
+        if (geoLayer.isNotValid()) {
             context.getCounter(GeoLayer.Counter.WRONG_EMPTY_FIELD).increment(1);
             return;
         }
@@ -53,7 +52,7 @@ public class MLoadGeo extends Mapper<WritableComparable, Text, ComparedKey, Text
             return;
         }
 
-        KEY.setComparedState(new LongWritable(geoLayer.getTimeIntervalEndDate().getMillis()));
+        KEY.setComparedState(new LongWritable(-geoLayer.getTimeIntervalEndDate().getMillis())); //reverse order
         KEY.setKey(new Text(geoLayer.getCtn()));
 
         VALUE.set(new Text(geoLayer.getImsi() + GeoLayer.Constant.FIELD_DELIMITER +
@@ -61,19 +60,20 @@ public class MLoadGeo extends Mapper<WritableComparable, Text, ComparedKey, Text
                 geoLayer.getTimeIntervalEndDate().toString(GeoLayer.Constant.INTERVAL_FORMATTER) + GeoLayer.Constant.FIELD_DELIMITER +
                 geoLayer.getCellList()
         ));
+
+        context.write(KEY, VALUE);
+        context.getCounter(GeoLayer.Counter.GOOD_ROW).increment(1);
     }
 
-    public static class OutputKey {
-        public static final int LENGTH = 1;
-        public static final int CTN_INDEX = 0;
+    public enum OutputKey {
+        CTN;
     }
 
-    public static class OutputValue {
-        public static final int LENGTH = 4;
-        public static final int INDEX_IMSI = 0;
-        public static final int INDEX_START_INTERVAL = 1;
-        public static final int INDEX_END_INTERVAL = 2;
-        public static final int INDEX_CELL_LIST = 3;
+    public enum  OutputValue {
+        IMSI,
+        START_INTERVAL,
+        END_INTERVAL,
+        CELL_LIST;
     }
 
 

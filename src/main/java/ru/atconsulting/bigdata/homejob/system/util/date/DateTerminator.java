@@ -32,7 +32,7 @@ public class DateTerminator {
         DateTime dateTime2359 = dateTimeStart.withTime(TWENTY_THREE, FIFTY_NINE, FIFTY_NINE, NINE_HUNDRED_NINETY_NINE);
 
         TimeSummary timeSummary = new TimeSummary();
-        timeSummary.incrementHome(getHomeSeconds(dateTimeStart, dateTimeEnd, dateTime0000, dateTime0600, dateTime2300, dateTime2359));
+        timeSummary.incrementHome(getHomeSeconds(dateTimeStart, dateTimeEnd, dateTime0000, dateTime0600, dateTime2300, dateTime2359, dimTime));
         timeSummary.incrementJob(getJobSeconds(dateTimeStart, dateTimeEnd, dateTime1000, dateTime1800, dimTime));
         timeSummary.incrementEvening(getEveningSeconds(dateTimeStart, dateTimeEnd, dateTime1800, dateTime2300, dimTime));
         timeSummary.incrementMorning(getMorningSeconds(dateTimeStart, dateTimeEnd, dateTime0600, dateTime1000, dimTime));
@@ -52,7 +52,7 @@ public class DateTerminator {
             DateTime dateTime2300 = geoInterval.getStartInterval().withTime(TWENTY_THREE, ZERO, ZERO, ZERO);
             DateTime dateTime2359 = geoInterval.getStartInterval().withTime(TWENTY_THREE, FIFTY_NINE, FIFTY_NINE, NINE_HUNDRED_NINETY_NINE);
 
-            timeSummary.incrementHome(getHomeSeconds(geoInterval.getStartInterval(), geoInterval.getEndInterval(), dateTime0000, dateTime0600, dateTime2300, dateTime2359));
+            timeSummary.incrementHome(getHomeSeconds(geoInterval.getStartInterval(), geoInterval.getEndInterval(), dateTime0000, dateTime0600, dateTime2300, dateTime2359, dimTime));
             timeSummary.incrementJob(getJobSeconds(geoInterval.getStartInterval(), geoInterval.getEndInterval(), dateTime1000, dateTime1800, dimTime));
             timeSummary.incrementEvening(getEveningSeconds(geoInterval.getStartInterval(), geoInterval.getEndInterval(), dateTime1800, dateTime2300, dimTime));
             timeSummary.incrementMorning(getMorningSeconds(geoInterval.getStartInterval(), geoInterval.getEndInterval(), dateTime0600, dateTime1000, dimTime));
@@ -84,7 +84,7 @@ public class DateTerminator {
 
     private static long getWeekendDaySeconds(DateTime dateTimeStart, DateTime dateTimeEnd,
                                              DateTime dt1, DateTime dt2, Map<String, Integer> dimTimeMap) {
-        if (isHoliday(dateTimeStart, dimTimeMap) || isWeekend(dateTimeStart.getHourOfDay())) {
+        if (isHoliday(dateTimeStart, dimTimeMap) || isWeekend(dateTimeStart.getDayOfWeek())) {
             return getDaySeconds(dateTimeStart, dateTimeEnd, dt1, dt2);
         }
         return 0;
@@ -92,9 +92,9 @@ public class DateTerminator {
 
     private static long getWeekendSeconds(DateTime dateTimeStart, DateTime dateTimeEnd,
                                           DateTime dt1, DateTime dt2, DateTime dt3, DateTime dt4, Map<String, Integer> dimTimeMap) {
-        if (isHoliday(dateTimeStart, dimTimeMap) || dateTimeStart.getHourOfDay() == 7) {
+        if (isHoliday(dateTimeStart, dimTimeMap) || dateTimeStart.getDayOfWeek() == 7) {
             return getEarlyMorningBeforeNightSeconds(dateTimeStart, dateTimeEnd, dt3, dt4);
-        } else if (dateTimeStart.getHourOfDay() == 6) {
+        } else if (dateTimeStart.getDayOfWeek() == 6) {
             return getMorningBeforeEarlyMorningSeconds(dateTimeStart, dateTimeEnd, dt1, dt2);
         }
         return 0;
@@ -109,8 +109,12 @@ public class DateTerminator {
     }
 
     private static long getHomeSeconds(DateTime dateTimeStart, DateTime dateTimeEnd,
-                                       DateTime dt1, DateTime dt2, DateTime dt3, DateTime dt4) {
+                                       DateTime dt1, DateTime dt2, DateTime dt3, DateTime dt4,
+                                       Map<String, Integer> dimTime) {
         long homeResult = 0;
+        if(isHoliday(dateTimeStart, dimTime)){
+            return homeResult;
+        }
         if (!isWeekend(dateTimeStart.getDayOfWeek())) {
             homeResult += getEarlyMorningSeconds(dateTimeStart, dateTimeEnd, dt1, dt2);
             homeResult += getNightSeconds(dateTimeStart, dateTimeEnd, dt3, dt4);
@@ -134,7 +138,7 @@ public class DateTerminator {
             if (isNight(dateTimeEnd.getHourOfDay())) {
                 return Seconds.secondsBetween(dateTimeStart, dateTimeEnd).getSeconds();
             } else {
-                return Seconds.secondsBetween(dateTimeStart, endInterval.minusMillis(1)).getSeconds();
+                return Seconds.secondsBetween(dateTimeStart, endInterval).getSeconds();
             }
         } else if (isNight(dateTimeEnd.getHourOfDay())) {
             return Seconds.secondsBetween(startInterval, dateTimeEnd).getSeconds();

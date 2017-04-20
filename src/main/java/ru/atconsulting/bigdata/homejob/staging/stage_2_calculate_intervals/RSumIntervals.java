@@ -1,5 +1,6 @@
 package ru.atconsulting.bigdata.homejob.staging.stage_2_calculate_intervals;
 
+import com.google.common.base.Joiner;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -24,24 +25,26 @@ public class RSumIntervals extends Reducer<Text, Text, NullWritable, Text> {
         Set<String> cellList = new HashSet<>();
         for (Text value : values) {
             String valueRow[] = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER, -1);
-            timeSummary.incrementHome(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_HOME.ordinal()]));
-            timeSummary.incrementJob(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_JOB.ordinal()]));
-            timeSummary.incrementEvening(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_EVENING.ordinal()]));
-            timeSummary.incrementMorning(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_MORNING.ordinal()]));
-            timeSummary.incrementWeekend(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND.ordinal()]));
-            timeSummary.incrementWeekendDay(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND_DAY.ordinal()]));
-            timeSummary.incrementWeekendNight(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND_NIGHT.ordinal()]));
+            timeSummary.incrementHome(Long.parseLong(valueRow[MDivideIntervals.OutputValue.HOME.ordinal()]));
+            timeSummary.incrementJob(Long.parseLong(valueRow[MDivideIntervals.OutputValue.JOB.ordinal()]));
+            timeSummary.incrementEvening(Long.parseLong(valueRow[MDivideIntervals.OutputValue.EVENING.ordinal()]));
+            timeSummary.incrementMorning(Long.parseLong(valueRow[MDivideIntervals.OutputValue.MORNING.ordinal()]));
+            timeSummary.incrementWeekend(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND.ordinal()]));
+            timeSummary.incrementWeekendDay(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND_DAY.ordinal()]));
+            timeSummary.incrementWeekendNight(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND_NIGHT.ordinal()]));
 
-            timeSummary.incrementHomeCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_HOME_COUNT.ordinal()]));
-            timeSummary.incrementJobCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_JOB_COUNT.ordinal()]));
-            timeSummary.incrementEveningCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_EVENING_COUNT.ordinal()]));
-            timeSummary.incrementMorningCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_MORNING_COUNT.ordinal()]));
-            timeSummary.incrementWeekendCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND_COUNT.ordinal()]));
-            timeSummary.incrementWeekendDayCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND_DAY_COUNT.ordinal()]));
-            timeSummary.incrementWeekendNightCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.INDEX_WEEKEND_NIGHT_COUNT.ordinal()]));
+            timeSummary.incrementHomeCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.HOME_COUNT.ordinal()]));
+            timeSummary.incrementJobCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.JOB_COUNT.ordinal()]));
+            timeSummary.incrementEveningCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.EVENING_COUNT.ordinal()]));
+            timeSummary.incrementMorningCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.MORNING_COUNT.ordinal()]));
+            timeSummary.incrementWeekendCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND_COUNT.ordinal()]));
+            timeSummary.incrementWeekendDayCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND_DAY_COUNT.ordinal()]));
+            timeSummary.incrementWeekendNightCount(Long.parseLong(valueRow[MDivideIntervals.OutputValue.WEEKEND_NIGHT_COUNT.ordinal()]));
 
-            addTowers(cellList, valueRow[MDivideIntervals.OutputValue.INDEX_CELL_LIST.ordinal()]);
+            addTowers(cellList, valueRow[MDivideIntervals.OutputValue.CELL_LIST.ordinal()]);
         }
+        Joiner joiner = Joiner.on(GeoLayer.Constant.CELL_LIST_DELIMITER);
+
         VALUE.set(key.toString() + GeoLayer.Constant.FIELD_DELIMITER +
                 timeSummary.getHome() + GeoLayer.Constant.FIELD_DELIMITER +
                 timeSummary.getJob() + GeoLayer.Constant.FIELD_DELIMITER +
@@ -57,11 +60,10 @@ public class RSumIntervals extends Reducer<Text, Text, NullWritable, Text> {
                 timeSummary.getWeekendCount() + GeoLayer.Constant.FIELD_DELIMITER +
                 timeSummary.getWeekendDayCount() + GeoLayer.Constant.FIELD_DELIMITER +
                 timeSummary.getWeekendNightCount() + GeoLayer.Constant.FIELD_DELIMITER +
-                cellList.toString()
+                joiner.join(cellList)
         );
 
         context.write(KEY, VALUE);
-
     }
 
     private void addTowers(Set<String> setCells, String cellList) {
