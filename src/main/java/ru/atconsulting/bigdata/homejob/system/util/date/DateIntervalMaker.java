@@ -3,6 +3,7 @@ package ru.atconsulting.bigdata.homejob.system.util.date;
 import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +13,15 @@ import java.util.List;
  */
 public class DateIntervalMaker {
 
-    public static List<GeoInterval> tryToMakeDayIntervals(DateTime startInput, DateTime endInput) {
+    public static List<GeoInterval> tryToMakeDayIntervals(LocalDateTime startInput, LocalDateTime endInput) {
         List<GeoInterval> geoIntervals = new ArrayList<>();
-        DateTime start = startInput.withTimeAtStartOfDay();
+        LocalDateTime start = startInput.withTime(0,0,0,0);
         for (; !start.isAfter(endInput); start = start.plusDays(1)) {
             GeoInterval geoInterval = new GeoInterval();
             if (start.getDayOfMonth() == startInput.getDayOfMonth()) {
                 geoInterval.setStartInterval(startInput);
             } else {
-                geoInterval.setStartInterval(start.withTimeAtStartOfDay());
+                geoInterval.setStartInterval(start.withTime(0,0,0,0));
             }
             if (endInput.getDayOfMonth() == start.getDayOfMonth()) {
                 geoInterval.setEndInterval(endInput);
@@ -34,16 +35,16 @@ public class DateIntervalMaker {
         return geoIntervals;
     }
 
-    private static boolean isSameTime(DateTime dateTime1, DateTime dateTime2){
-        return dateTime1.getMillis() == dateTime2.getMillis();
+    private static boolean isSameTime(LocalDateTime dateTime1, LocalDateTime dateTime2){
+        return dateTime1.equals(dateTime2);
     }
 
     @Setter
     @Getter
     public static class GeoInterval {
 
-        private DateTime startInterval;
-        private DateTime endInterval;
+        private LocalDateTime startInterval;
+        private LocalDateTime endInterval;
     }
 
 }

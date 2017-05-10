@@ -37,10 +37,10 @@ public class Stage3GroupTest {
         mapReduceDriver.setReducer(reducerGroupByCtn);
         mapReduceDriver.addMapper(mapperAddGrid);
         Configuration configuration = mapReduceDriver.getConfiguration();
-        configuration.set(ClusterProperties.PARAM_NAMES.HDFS_DIM_GRID_ALL_PATH.name(), TestParams.getPath(TestParams.PATH_ENUM.DIM_GRID_ALL_3).toString());
-        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201502");
+        configuration.set(ClusterProperties.PARAM_NAMES.HDFS_DIM_GRID_ALL_PATH.name(), TestParams.getPath(TestParams.PATH_ENUM.DIM_GRID_ALL_3_2).toString());
+        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201612");
 
-        mapReduceDriver.addCacheFile(new Path(TestParams.getPath(TestParams.PATH_ENUM.DIM_GRID_ALL_3).toString()).toUri());
+        mapReduceDriver.addCacheFile(new Path(TestParams.getPath(TestParams.PATH_ENUM.DIM_GRID_ALL_3_2).toString()).toUri());
     }
 
     @Test

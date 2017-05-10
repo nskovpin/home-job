@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import ru.atconsulting.bigdata.homejob.system.util.date.DateTerminator;
@@ -22,12 +23,12 @@ import java.util.Map;
 @Getter
 public class DimTime {
     private static final Logger LOGGER = Logger.getLogger(DimTime.class);
-    private DateTime date;
+    private LocalDateTime date;
     private int holiday;
 
-    private DimTime(String[] rowArray, DateTime load){
+    private DimTime(String[] rowArray, LocalDateTime load){
         if(!(Utils.isNullOrEmpty(rowArray[Index.TIME_KEY.ordinal()]) || Utils.isNullOrEmpty(rowArray[Index.HOLIDAY.ordinal()]))){
-            DateTime date = DateTime.parse(rowArray[Index.TIME_KEY.ordinal()], Constants.DATE_FORMATTER_INPUT);
+            LocalDateTime date = LocalDateTime.parse(rowArray[Index.TIME_KEY.ordinal()], Constants.DATE_FORMATTER_INPUT);
             if(DateTerminator.isSameYearMonth(date, load)){
                 this.date = date;
                 this.holiday = Integer.parseInt(rowArray[Index.HOLIDAY.ordinal()]);
@@ -43,21 +44,22 @@ public class DimTime {
 
     private enum Index{
         TIME_KEY,
-        HOLIDAY;//todo check this
+        WEEKEND,
+        HOLIDAY;
     }
 
     public enum Counter{
         WRONG_COLUMN_LENGTH
     }
 
-    public static Map<String, Integer> loadDimTimeMap(String path, DateTime load) throws IOException {
+    public static Map<String, Integer> loadDimTimeMap(String path, LocalDateTime load) throws IOException {
         BufferedReader bf = new BufferedReader(new FileReader(new File(path)));
         String line;
         Map<String, Integer> dimTimeMap = new HashMap<>();
         while ((line = bf.readLine()) != null) {
             if (!line.isEmpty()) {
                 String[] dimRow = line.split(Constants.DELIMITER, -1);
-                if (dimRow.length == Index.values().length) {
+                if (dimRow.length >= Index.values().length) {
                     DimTime dimTime = new DimTime(dimRow, load);
                     if(dimTime.getDate() != null){
                         dimTimeMap.put(dimTime.getDate().toString(Constants.DATE_FORMATTER_INPUT), dimTime.getHoliday());

@@ -5,6 +5,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import ru.atconsulting.bigdata.homejob.staging.stage_1_unique_imsi.RFirstImsi;
 import ru.atconsulting.bigdata.homejob.system.ClusterProperties;
 import ru.atconsulting.bigdata.homejob.system.pojo.DimTime;
@@ -55,8 +56,8 @@ public class MDivideIntervals extends Mapper<WritableComparable, Text, Text, Tex
         String ctn = row[RFirstImsi.OutputValue.CTN.ordinal()];
         String imsi = row[RFirstImsi.OutputValue.IMSI.ordinal()];
         String cellList = row[RFirstImsi.OutputValue.CELL_LIST.ordinal()].replace("[","").replace("]","");
-        DateTime startIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.START_INTERVAL.ordinal()], GeoLayer.Constant.INTERVAL_FORMATTER);
-        DateTime endIntervalDate = DateTime.parse(row[RFirstImsi.OutputValue.END_INTERVAL.ordinal()], GeoLayer.Constant.INTERVAL_FORMATTER);
+        LocalDateTime startIntervalDate = LocalDateTime.parse(row[RFirstImsi.OutputValue.START_INTERVAL.ordinal()], RFirstImsi.OutputValue.INTERVAL_FORMATTER);
+        LocalDateTime endIntervalDate = LocalDateTime.parse(row[RFirstImsi.OutputValue.END_INTERVAL.ordinal()], RFirstImsi.OutputValue.INTERVAL_FORMATTER);
 
         List<DateIntervalMaker.GeoInterval> intervals = DateIntervalMaker.tryToMakeDayIntervals(startIntervalDate, endIntervalDate);
         TimeSummary timeSummary = DateTerminator.getTimeSummary(intervals, dimTimeMap);

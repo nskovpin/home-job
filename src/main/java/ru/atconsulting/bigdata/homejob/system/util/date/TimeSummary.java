@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 public class TimeSummary {
 
+    private boolean autoIncrement;
+
     private long home;
     private long job;
     private long evening;
@@ -26,51 +28,72 @@ public class TimeSummary {
     private long weekendDayCount;
     private long weekendNightCount;
 
+    public TimeSummary() {
+        this.autoIncrement = true;
+    }
+
+    public TimeSummary(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
+    }
 
     public void incrementHome(long home) {
-        if (home > 0) {
+        if (home > 0 && autoIncrement) {
+            this.incrementHomeCount();
+        }
+        this.home += home;
+    }
+
+    public void incrementHome(long home, boolean withoutIncrement) {
+        if (home > 0 && autoIncrement && !withoutIncrement) {
             this.incrementHomeCount();
         }
         this.home += home;
     }
 
     public void incrementJob(long job) {
-        if (job > 0) {
+        if (job > 0 && autoIncrement) {
             this.incrementJobCount();
         }
         this.job += job;
     }
 
     public void incrementEvening(long evening) {
-        if (evening > 0) {
+        if (evening > 0 && autoIncrement) {
             this.incrementEveningCount();
         }
         this.evening += evening;
     }
 
     public void incrementMorning(long morning) {
-        if (morning > 0) {
+        if (morning > 0 && autoIncrement) {
             this.incrementMorningCount();
         }
         this.morning += morning;
     }
 
     public void incrementWeekend(long weekend) {
-        if (weekend > 0) {
+        if (weekend > 0 && autoIncrement) {
             this.incrementWeekendCount();
         }
         this.weekend += weekend;
     }
 
     public void incrementWeekendDay(long weekendDay) {
-        if (weekendDay > 0) {
+        if (weekendDay > 0 && autoIncrement) {
             this.incrementWeekendDayCount();
         }
         this.weekendDay += weekendDay;
     }
 
     public void incrementWeekendNight(long weekendNight) {
-        if (weekendNight > 0) {
+        if (weekendNight > 0 && autoIncrement) {
+            this.incrementWeekendNightCount();
+        }
+        this.weekendNight += weekendNight;
+    }
+
+    public void incrementWeekendNight(long weekendNight, boolean withoutIncrement) {
+        if (weekendNight > 0 && autoIncrement && !withoutIncrement) {
             this.incrementWeekendNightCount();
         }
         this.weekendNight += weekendNight;

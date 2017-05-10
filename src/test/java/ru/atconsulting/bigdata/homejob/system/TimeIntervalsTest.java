@@ -2,6 +2,8 @@ package ru.atconsulting.bigdata.homejob.system;
 
 import junit.framework.Assert;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import ru.atconsulting.bigdata.homejob.system.util.date.DateIntervalMaker;
@@ -29,8 +31,8 @@ public class TimeIntervalsTest {
 
     @Test
     public void intervalsTest(){
-        DateTime dateTime1 = DateTime.now();
-        DateTime dateTime2 = dateTime1.plusDays(2);
+        LocalDateTime dateTime1 = LocalDateTime.now();
+        LocalDateTime dateTime2 = dateTime1.plusDays(2);
 
         List<DateIntervalMaker.GeoInterval> list =  DateIntervalMaker.tryToMakeDayIntervals(dateTime1, dateTime2);
         Assert.assertTrue(list.size() == 3);
@@ -39,13 +41,39 @@ public class TimeIntervalsTest {
 
     @Test
     public void summaryTest(){
-        DateTime dateTime1 = DateTime.now();
-        DateTime dateTime2 = dateTime1.plusDays(2).minusHours(3).minusMinutes(10);
+        LocalDateTime dateTime1 = LocalDateTime.parse("2017-05-02 10:52", DateTimeFormat.forPattern("yyyy-MM-dd hh:mm"));
+        LocalDateTime dateTime2 = dateTime1.plusDays(2).minusHours(3).minusMinutes(10);
 
         List<DateIntervalMaker.GeoInterval> list =  DateIntervalMaker.tryToMakeDayIntervals(dateTime1, dateTime2);
         TimeSummary timeSummary = DateTerminator.getTimeSummary(list, dimTimeTest);
         Assert.assertTrue(timeSummary != null);
         Assert.assertTrue(timeSummary.getEvening()> 0);
+    }
+
+    @Test
+    public void sameNightTest(){
+        LocalDateTime dateTime1 = LocalDateTime.parse("2017-05-02 10:52", DateTimeFormat.forPattern("yyyy-MM-dd hh:mm"));
+        LocalDateTime dateTime2 = dateTime1.plusDays(2).minusMinutes(10);
+
+        List<DateIntervalMaker.GeoInterval> list =  DateIntervalMaker.tryToMakeDayIntervals(dateTime1, dateTime2);
+        TimeSummary timeSummary = DateTerminator.getTimeSummary(list, dimTimeTest);
+        Assert.assertTrue(timeSummary != null);
+        Assert.assertTrue(timeSummary.getEvening()> 0);
+        Assert.assertTrue(timeSummary.getHomeCount() == 2);
+    }
+
+    @Test
+    public void sameWeekendTest(){
+        LocalDateTime dateTime1 = LocalDateTime.parse("2017-05-05 10:52", DateTimeFormat.forPattern("yyyy-MM-dd hh:mm"));
+        LocalDateTime dateTime2 = dateTime1.plusDays(3).minusMinutes(10);
+
+        List<DateIntervalMaker.GeoInterval> list =  DateIntervalMaker.tryToMakeDayIntervals(dateTime1, dateTime2);
+        TimeSummary timeSummary = DateTerminator.getTimeSummary(list, dimTimeTest);
+        Assert.assertTrue(timeSummary != null);
+        Assert.assertTrue(timeSummary.getEvening()> 0);
+        Assert.assertTrue(timeSummary.getHomeCount() == 2);
+        Assert.assertTrue(timeSummary.getWeekendNightCount() == 2);
+
     }
 
 }

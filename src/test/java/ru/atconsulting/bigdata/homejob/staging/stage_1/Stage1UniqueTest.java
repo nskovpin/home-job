@@ -43,7 +43,7 @@ public class Stage1UniqueTest {
         mapReduceDriver.setReducer(rFirstImsi);
         mapReduceDriver.addMapper(mLoadGeo);
         Configuration  configuration = mapReduceDriver.getConfiguration();
-        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201502");
+        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201612");
 
         mapReduceDriver.setKeyGroupingComparator(new GroupingKeyComparator());
         mapReduceDriver.setKeyOrderComparator(new CompositeKeyComparator());
@@ -56,7 +56,7 @@ public class Stage1UniqueTest {
         List<String> geoLayerList = new ArrayList<>();
         List<String> resultList = new ArrayList<>();
 
-        geoLayerList.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.AGG_GEO_LAYER), Charset.defaultCharset()));
+        geoLayerList.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.AGG_GEO_LAYER_2), Charset.defaultCharset()));
         resultList.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.STAGE_1_OUT), Charset.defaultCharset()));
 
         // GEO_LAYER

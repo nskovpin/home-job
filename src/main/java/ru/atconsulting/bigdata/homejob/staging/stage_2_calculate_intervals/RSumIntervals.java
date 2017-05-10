@@ -21,7 +21,7 @@ public class RSumIntervals extends Reducer<Text, Text, NullWritable, Text> {
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-        TimeSummary timeSummary = new TimeSummary();
+        TimeSummary timeSummary = new TimeSummary(false);
         Set<String> cellList = new HashSet<>();
         for (Text value : values) {
             String valueRow[] = value.toString().split(GeoLayer.Constant.FIELD_DELIMITER, -1);

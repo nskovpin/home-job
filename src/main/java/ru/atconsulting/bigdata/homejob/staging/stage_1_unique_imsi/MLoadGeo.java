@@ -4,6 +4,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import ru.at_consulting.bigdata.secondary_sort.ComparedKey;
 import ru.atconsulting.bigdata.homejob.system.ClusterProperties;
 import ru.atconsulting.bigdata.homejob.system.util.date.DateTerminator;
@@ -46,18 +48,17 @@ public class MLoadGeo extends Mapper<WritableComparable, Text, ComparedKey, Text
             return;
         }
 
-        if (geoLayer.getInMetro().equals(GeoLayer.Constant.IN_METRO) || geoLayer.getCellList().equals(GeoLayer.Constant.CELL_LIST)
-                || geoLayer.getStatus().equals(GeoLayer.Constant.STATUS)) {
+        if (geoLayer.getInMetro().equals(GeoLayer.Constant.IN_METRO) || geoLayer.getCellList().equals(GeoLayer.Constant.CELL_LIST)) {
             context.getCounter(GeoLayer.Counter.WRONG_VALUE_FIELD).increment(1);
             return;
         }
 
-        KEY.setComparedState(new LongWritable(-geoLayer.getTimeIntervalEndDate().getMillis())); //reverse order
+        KEY.setComparedState(new LongWritable(-geoLayer.getTimeIntervalEndDate().toDateTime().getMillis())); //reverse order
         KEY.setKey(new Text(geoLayer.getCtn()));
 
         VALUE.set(new Text(geoLayer.getImsi() + GeoLayer.Constant.FIELD_DELIMITER +
-                geoLayer.getTimeIntervalStartDate().toString(GeoLayer.Constant.INTERVAL_FORMATTER) + GeoLayer.Constant.FIELD_DELIMITER +
-                geoLayer.getTimeIntervalEndDate().toString(GeoLayer.Constant.INTERVAL_FORMATTER) + GeoLayer.Constant.FIELD_DELIMITER +
+                geoLayer.getTimeIntervalStartDate().toString(OutputValue.INTERVAL_FORMATTER) + GeoLayer.Constant.FIELD_DELIMITER +
+                geoLayer.getTimeIntervalEndDate().toString(OutputValue.INTERVAL_FORMATTER) + GeoLayer.Constant.FIELD_DELIMITER +
                 geoLayer.getCellList()
         ));
 
@@ -74,6 +75,7 @@ public class MLoadGeo extends Mapper<WritableComparable, Text, ComparedKey, Text
         START_INTERVAL,
         END_INTERVAL,
         CELL_LIST;
+        public static DateTimeFormatter INTERVAL_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
     }
 
 

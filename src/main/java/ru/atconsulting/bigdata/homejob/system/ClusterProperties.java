@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.hadoop.conf.Configuration;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
@@ -17,8 +18,8 @@ import java.io.File;
 public final class ClusterProperties {
     private static final String STG = "stg";
     private static final String STAGING = "staging";
-    public static final String EMPTY_VALUE_NO_DATA = "NO_DATA";
-    public static final String EMPTY_VALUE_LOCATION_NOT_FOUND = "Location_not_found";
+    public static final String EMPTY = "";
+    public static final String EMPTY_LOCATION_NOT_FOUND = "Location_not_found";
     public static final String WORK = "work";
     public static final String DATA = "data";
     public static final String TIME_KEY_PATTERN = "YYYYMM";
@@ -28,7 +29,6 @@ public final class ClusterProperties {
     private final String hdfsDimGridAllPath;
 
     private final String projectName;
-    private final String hdfsProjectDir;
     private final String hdfsOutputWorkDir;
     private final String hdfsOutputDataDir;
 
@@ -36,7 +36,7 @@ public final class ClusterProperties {
     private final String hdfsStgIntervals;
     private final String hdfsResult;
 
-    private final DateTime timeKey;
+    private final LocalDateTime timeKey;
 
     private final int stage;
 
@@ -45,7 +45,8 @@ public final class ClusterProperties {
         HDFS_GEO_LAYER_PATH,
         HDFS_DIM_TIME_PATH,
         HDFS_DIM_GRID_ALL_PATH,
-        HDFS_PROJECT_PATH,
+        WORKING_DIR,
+        OUTPUT_DIR,
         TIME_KEY,
         STAGE
     }
@@ -58,14 +59,13 @@ public final class ClusterProperties {
         this.hdfsDimGridAllPath = configuration.get(PARAM_NAMES.HDFS_DIM_GRID_ALL_PATH.name());
         this.hdfsDimTimePath = configuration.get(PARAM_NAMES.HDFS_DIM_TIME_PATH.name());
 
-        this.hdfsProjectDir = configuration.get(PARAM_NAMES.HDFS_PROJECT_PATH.name());
-        this.hdfsOutputWorkDir = hdfsProjectDir + File.separator + WORK;
-        this.hdfsOutputDataDir = hdfsProjectDir + File.separator + DATA;
+        this.hdfsOutputWorkDir = configuration.get(PARAM_NAMES.WORKING_DIR.name());
+        this.hdfsOutputDataDir = configuration.get(PARAM_NAMES.OUTPUT_DIR.name());
 
         this.hdfsStgUniqueImsi = hdfsOutputDataDir + File.separator + STAGING + File.separator + STG + "_unique_imsi";
         this.hdfsStgIntervals = hdfsOutputDataDir + File.separator + STAGING + File.separator + STG + "_intervals";
 
-        this.timeKey = DateTime.parse(configuration.get(PARAM_NAMES.TIME_KEY.name()), DateTimeFormat.forPattern(TIME_KEY_PATTERN));
+        this.timeKey = LocalDateTime.parse(configuration.get(PARAM_NAMES.TIME_KEY.name()), DateTimeFormat.forPattern(TIME_KEY_PATTERN));
         this.hdfsResult = hdfsOutputDataDir + File.separator + timeKey.toString(TIME_KEY_PATTERN);
 
     }

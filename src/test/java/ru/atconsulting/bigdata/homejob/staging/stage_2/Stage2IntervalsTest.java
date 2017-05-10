@@ -33,10 +33,10 @@ public class Stage2IntervalsTest {
         mapReduceDriver.setReducer(reducerSumIntervals);
         mapReduceDriver.addMapper(mapperDivideIntervals);
         Configuration configuration = mapReduceDriver.getConfiguration();
-        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201502");
-        configuration.set(ClusterProperties.PARAM_NAMES.HDFS_DIM_TIME_PATH.name(), TestParams.getPath(TestParams.PATH_ENUM.DIM_TIME_2).toString());
+        configuration.set(ClusterProperties.PARAM_NAMES.TIME_KEY.name(),"201612");
+        configuration.set(ClusterProperties.PARAM_NAMES.HDFS_DIM_TIME_PATH.name(), TestParams.getPath(TestParams.PATH_ENUM.DIM_TIME_2_2).toString());
 
-        mapReduceDriver.addCacheFile(new Path(TestParams.getPath(TestParams.PATH_ENUM.DIM_TIME_2).toString()).toUri());
+        mapReduceDriver.addCacheFile(new Path(TestParams.getPath(TestParams.PATH_ENUM.DIM_TIME_2_2).toString()).toUri());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class Stage2IntervalsTest {
         List<String> stage1Output = new ArrayList<>();
         List<String> resultList = new ArrayList<>();
 
-        stage1Output.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.STAGE_1_OUT_UNIT), Charset.defaultCharset()));
+        stage1Output.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.STAGE_1_OUT), Charset.defaultCharset()));
         resultList.addAll(Files.readAllLines(TestParams.getPath(TestParams.PATH_ENUM.STAGE_2_OUT), Charset.defaultCharset()));
 
         // STAGE_1

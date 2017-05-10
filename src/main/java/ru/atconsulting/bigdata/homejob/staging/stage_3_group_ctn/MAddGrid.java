@@ -31,8 +31,8 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
         URI[] files = context.getCacheFiles();
         for (URI file : files) {
             Path path = new Path(file);
-            if(dimGridAllPath.getName().equals(path.getName())){
-                this.dimGridAllMap = DimGridAll.loadDimGridAllMap(path.toString());
+            if (dimGridAllPath.getName().equals(path.getName())) {
+                this.dimGridAllMap = DimGridAll.loadDimGridAllMap(path.toString(), clusterProperties.getTimeKey());
             }
         }
         if (dimGridAllMap.size() == 0) {
@@ -55,13 +55,13 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
                 .build();
         DimGridAll dimGridAll = dimGridAllMap.get(tower);
 
-        String latitude = dimGridAll == null ? "" : dimGridAll.getLatitude();
-        String longitude = dimGridAll == null ? "" : dimGridAll.getLongitude();
-        String fullAddress = dimGridAll == null ?  "" : dimGridAll.getFullAddress();
-        String localityName = dimGridAll == null ? "" : dimGridAll.getLocalityName();
-        String branchId = dimGridAll == null ?  "" : dimGridAll.getBranchId();
-        String cityId = dimGridAll == null ? "" : dimGridAll.getCityId();
-        String gridAll = dimGridAll == null ? "" : dimGridAll.getGridList();
+        String latitude = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getLatitude();
+        String longitude = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getLongitude();
+        String fullAddress = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getFullAddress();
+        String localityName = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getLocalityName();
+        String branchId = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getBranchId();
+        String cityId = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getCityId();
+        String gridAll = dimGridAll == null ? ClusterProperties.EMPTY : dimGridAll.getGridList();
 
         KEY.set(ctn);
         VALUE.set(writeValue(valueRow, GeoLayer.Constant.FIELD_DELIMITER, Collections.singletonList(RSumIntervals.OutputValue.CTN.ordinal())) +
@@ -111,14 +111,14 @@ public class MAddGrid extends Mapper<WritableComparable, Text, Text, Text> {
         WEEKEND_COUNT,
         WEEKEND_DAY_COUNT,
         WEEKEND_NIGHT_COUNT,
+        CELL_LIST,
         LATITUDE,
         LONGITUDE,
         FULL_ADDRESS,
         LOCALITY_NAME,
         BRANCH_ID,
         CITY_ID,
-        GRID_LIST,
-        CELL_LIST;
+        GRID_LIST;
     }
 
 }

@@ -55,8 +55,8 @@ public class DDriver1 extends Configured implements Tool {
 
         ResourceLoader resourceLoader = new ResourceLoader(job);
         int loaded = resourceLoader.loadPartitionedSource(clusterProperties.getHdfsGeoLayerPath(),
-                clusterProperties.getTimeKey(),
-                clusterProperties.getTimeKey(),
+                clusterProperties.getTimeKey().toDateTime(),
+                clusterProperties.getTimeKey().toDateTime(),
                 Months.ONE,
                 "YYYYMM",
                 MLoadGeo.class);

@@ -3,6 +3,8 @@ package ru.atconsulting.bigdata.homejob.staging.stage_1_unique_imsi;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import ru.at_consulting.bigdata.secondary_sort.ComparedKey;
 import ru.atconsulting.bigdata.homejob.system.pojo.GeoLayer;
 
@@ -31,7 +33,6 @@ public class RFirstImsi extends Reducer<ComparedKey, Text, NullWritable, Text> {
                     row[MLoadGeo.OutputValue.CELL_LIST.ordinal()]
             );
             context.write(KEY, VALUE);
-            System.out.println(VALUE.toString());
         }
 
     }
@@ -42,6 +43,7 @@ public class RFirstImsi extends Reducer<ComparedKey, Text, NullWritable, Text> {
         START_INTERVAL,
         END_INTERVAL,
         CELL_LIST;
+        public static DateTimeFormatter INTERVAL_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
     }
 
 }
